@@ -2,17 +2,14 @@ public class Equation {
 
     private final double x0 = 0;
     private final double x1 = 1;
-    private final double h = 1.0/10;//шаг по х
+    private final double h = 1.0/3;
     private final double t0 = 0;
     private final double t1 = 1;
-    private final double tau = 1.0/300;//шаг по времени
+    private final double tau = 1.0/5;
     private final double a = 0.2;
     private final double b = 0.005;
-    private final double c1 = 1.0;//конст с точного
-    private final double alt = 0.005;//конст с точно
-    double k1 = -0.5;
-
-    private double sigma = tau / (h * h);
+    private final double c1 = 1.0;
+    private final double alt = 0.005;
 
     public double getX0() {
         return x0;
@@ -39,7 +36,7 @@ public class Equation {
     }
 
     public int getTPointsQuantity() {
-        return (int) Math.ceil((t1 - t0) / tau) + 1;//для повышеной точности
+        return (int) Math.ceil((t1 - t0) / tau) + 1;
     }
 
     public int getHPointsQuantity() {
@@ -48,26 +45,26 @@ public class Equation {
 
     public double calculateTrueSolution(double x, double t) {
         return  (1/Math.pow(c1*Math.exp(alt/a/-2*(x+alt*t))-2*b/(3*alt),2));
-        //точное решения
+
     }
 
-    public double calculateBottomBorder(double x) {
+    public double calculateFirstRow(double x) {
         double t = 0;
         return  (1/Math.pow(c1*Math.exp(alt/a/-2*(x+alt*t))-2*b/(3*alt),2));
     }
 
-    public double calculateLeftBorder(double t) {
+    public double calculateFirstColumn(double t) {
         double x = 0;
         return  (1/Math.pow(c1*Math.exp(alt/a/-2*(x+alt*t))-2*b/(3*alt),2));
     }
 
-    public double calculateRightBorder(double t) {
+    public double calculateLastColumn(double t) {
         double x = 1;
         return  (1/Math.pow(c1*Math.exp(alt/a/-2*(x+alt*t))-2*b/(3*alt),2));
     }
 
     public double calculateApproximateSolution(double wLeft, double wCurrent , double wRight) {
-        return (wCurrent + (a*(wRight -2* wCurrent + wLeft)/Math.pow(h,2) + Math.sqrt(wCurrent)*(wRight - wLeft)*b/2*h)*tau);//для приблизительного
+        return (wCurrent + (a*(wRight -2* wCurrent + wLeft)/Math.pow(h,2) + Math.sqrt(wCurrent)*(wRight - wLeft)*b/2*h)*tau);
     }
 
     public void printMatrix(double[][] matrix) {
