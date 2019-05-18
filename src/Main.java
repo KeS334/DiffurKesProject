@@ -1,25 +1,18 @@
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("ПОСЛЕДОВАТЕЛЬНОЕ РЕШЕНИЕ:");
-        Equation equation = new Equation();//новое диф уровнения
+        Equation equation = new Equation();
         long startTimeSerial = System.nanoTime();
-        double[][] serialMethod = new SerialMethod(equation).solve();//создаём обьект сериал солв для вызова метода солв и возращает матрицу
+        double[][] serialMethod = new SerialMethod(equation).solve();
         long endTimeSerial = System.nanoTime();
         long executeTimeSerial = endTimeSerial - startTimeSerial;
-        System.out.println("Приближённый результат:");
-//        equation.printMatrix(serialMethod);
 
-        System.out.println();
-        System.out.println("\nПАРАЛЛЕЛЬНОЕ РЕШЕНИЕ:");
         long startTimeParallel = System.nanoTime();
         double[][] parallelMethod = new ParallelMethod(equation).solve();
         long endTimeParallel = System.nanoTime();
         long executeTimeParallel = endTimeParallel - startTimeParallel;
-//        equation.printMatrix(parallelMethod);
-        System.out.println("\nВремя выполнения параллельного решения: " + executeTimeParallel + " нс");
 
-        printResult(executeTimeSerial, equation, serialMethod, calculateExactResult(equation));
+        printResult(executeTimeSerial, executeTimeParallel, equation, serialMethod, parallelMethod, calculateExactResult(equation));
     }
 
     private static double[][] calculateExactResult(Equation equation) {
@@ -33,78 +26,35 @@ public class Main {
             }
             t += equation.getTau();
         }
-        System.out.println("\nТочный резульат:");
-//        equation.printMatrix(trueMatrix);
-
         return trueMatrix;
     }
 
-    private static void printResult(long executeTimeSerial, Equation equation, double[][] serialMethod, double[][] trueMatrix) {
-        System.out.println("\nВремя выполнения последовательного решения: " + executeTimeSerial + " нс");
-        System.out.println("Средняя абсолютная погрешность: " + calculateError(equation, serialMethod, trueMatrix, 1));
-        System.out.println("Максимальная абсолютная погрешность: " + calculateError(equation, serialMethod, trueMatrix, 2));
-        System.out.println("Средняя относительная погрешность: " + calculateError(equation, serialMethod, trueMatrix, 3));
-        System.out.println("Максимальная относительная погрешность: " + calculateError(equation, serialMethod, trueMatrix, 4));
+    private static void printResult(long executeTimeSerial, long executeTimeParallel,
+        Equation equation, double[][] serialMethod, double[][] parallelMethod, double[][] trueMatrix) {
+
+        System.out.println("\nSerial Solution:");
+        equation.printMatrix(serialMethod);
+
+        System.out.println("\nParallel Result:");
+        equation.printMatrix(parallelMethod);
+
+        System.out.println("\nExact Result:");
+        equation.printMatrix(trueMatrix);
+
+        System.out.println();
+        System.out.println("Serial Time: " + executeTimeSerial + " ns");
+        System.out.println("Parallel Time: " + executeTimeParallel + " ns");
+        System.out.println();
+
+        Errors error = new Errors();
+        System.out.println("Average absolute error: " + error.calculateError(equation, serialMethod, trueMatrix, 1));
+        System.out.println("Max absolute error: " + error.calculateError(equation, serialMethod, trueMatrix, 2));
+        System.out.println("Average relative error: " + error.calculateError(equation, serialMethod, trueMatrix, 3));
+        System.out.println("Max relative error: " + error.calculateError(equation, serialMethod, trueMatrix, 4));
     }
 
 
 
-    private static double calculateError(Equation equation, double[][] serialMethod, double[][] trueMatrix, int flag) {
-        double[][] errorMatrix = new double[equation.getTPointsQuantity()][equation.getHPointsQuantity()];
-        double error = 0.0;
 
-        if (flag == 1 || flag == 2) {
-            for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                    errorMatrix[i][j] = Math.abs(serialMethod[i][j] - trueMatrix[i][j]);
-                }
-            }
-
-            if (flag == 1) {
-                for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                    for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                        error += errorMatrix[i][j];
-                    }
-                }
-
-                error = error / (equation.getTPointsQuantity() * equation.getHPointsQuantity());
-            } else if (flag == 2) {
-                error = errorMatrix[0][0];
-                for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                    for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                        if (error < errorMatrix[i][j]) {
-                            error = errorMatrix[i][j];
-                        }
-                    }
-                }
-            }
-        } else if (flag == 3 || flag == 4) {
-            for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                    errorMatrix[i][j] = 100 * (Math.abs(serialMethod[i][j] - trueMatrix[i][j])) / trueMatrix[i][j];
-                }
-            }
-
-            if (flag == 3) {
-                for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                    for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                        error += errorMatrix[i][j];
-                    }
-                }
-
-                error = error / (equation.getTPointsQuantity() * equation.getHPointsQuantity());
-            } else if (flag == 4) {
-                error = errorMatrix[0][0];
-                for (int i = 0; i < equation.getTPointsQuantity(); i++) {
-                    for (int j = 0; j < equation.getHPointsQuantity(); j++) {
-                        if (error < errorMatrix[i][j]) {
-                            error = errorMatrix[i][j];
-                        }
-                    }
-                }
-            }
-        }
-        return error;
-    }
 
 }
